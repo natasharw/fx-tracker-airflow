@@ -1,6 +1,8 @@
 # FX Tracker
 
-**** Work in progress **** A dockerised pipeline to process exchange rate data using Airflow
+**** Work in progress ****
+
+A dockerised pipeline to process exchange rate data using Airflow
 
 ## Prerequisites
 * Docker
@@ -21,7 +23,7 @@ git clone https://github.com/natasharw/fx-tracker-airflow.git
 docker-compose build
 ```
 
-#### 3. Run and initalize the databases (first run only)
+#### 3. FIRST RUN ONLY: Initalize database
 ```
 docker-compose up postgres
 ```
