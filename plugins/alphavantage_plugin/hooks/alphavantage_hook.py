@@ -18,7 +18,7 @@ class AlphavantageHook(HttpHook):
         """
 
         if self.alphavantage_token:
-            headers = {'function': self.QUERY_FUNCTION,'apikey': 'token {0}'. format(self.alphavantage_token),'from_currency': '{from_currency}', 'to_currency': '{to_currency}'}
+            headers = {'function':'CURRENCY_EXCHANGE_RATES','apikey': 'token {0}'. format(self.alphavantage_token),'from_currency': '{from_currency}', 'to_currency': '{to_currency}'}
             session = super().get_conn(headers)
             session.auth = None
             return session
