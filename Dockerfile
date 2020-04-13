@@ -6,4 +6,3 @@ RUN pip install --user papermill psycopg2-binary
 ENV AIRFLOW_HOME=/usr/local/airflow
 
 COPY ./airflow.cfg /usr/local/airflow/airflow.cfg
-COPY ./notebooks /usr/local/airflow/notebooks
