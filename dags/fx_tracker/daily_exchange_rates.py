@@ -26,7 +26,6 @@ default_args = {
 
 alphavantage_conn_id='alphavantage'
 
-
 dag = DAG(
     dag_id='daily_exchange_rates',
     default_args=default_args,
