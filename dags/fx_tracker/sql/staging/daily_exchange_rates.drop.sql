@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS alphavantage.daily_exchange_rates_staging

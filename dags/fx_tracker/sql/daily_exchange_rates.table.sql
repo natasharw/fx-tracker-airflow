@@ -9,4 +9,4 @@ CREATE TABLE alphavantage.daily_exchange_rates (
     der_created_at TIMESTAMP WITHOUT TIME ZONE,
     der_updated_at TIMESTAMP WITHOUT TIME ZONE,
     der_deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
-);
+)
