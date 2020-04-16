@@ -24,6 +24,8 @@ default_args = {
     'email_on_retry': False,
 }
 
+alphavantage_conn_id='alphavantage'
+
 dag = DAG(
     dag_id='daily_exchange_rates',
     default_args=default_args,
@@ -36,19 +38,43 @@ start_operator = DummyOperator(
     dag=dag
 )
 
-get_daily_rates = AlphavantageToPgOperator(
-    task_id='get_daily_rates',
+# create empty staging table to load data into
+create_staging = PostgresOperator(
+    task_id='create_staging',
+    sql='sql/staging/daily_exchange_rates.table.sql',
     dag=dag
 )
 
-# TODO add task to transform reporting tables
-# TODO write SQL script to generate table definitions and create tables
+# populate staging table with new data
+populate_staging = AlphavantageToPgOperator(
+    task_id='load_rates_to_staging',
+    function='FX_DAILY',
+    alphavantage_conn_id=alphavantage_conn_id,
+    postgres_table='alphavantage.daily_exchange_rates_staging',
+    dag=dag
+)
+
+# load only incremental data from staging into main table
+load_exchange_rates = PostgresOperator(
+    task_id='load_exchange_rates',
+    sql='sql/daily_exchange_rates.sql',
+    dag=dag
+)
+
+# drop staging table
+drop_staging = PostgresOperator(
+    task_id='drop_staging',
+    sql='sql/staging/daily_exchange_rates.drop.sql',
+    dag=dag
+)
+
+# TODO transform data to reporting tables
 # transform_rates = PostgresOperator(
 #     task_id='transform_rates',
 #     dag=dag
 # )
 
-run_jupypter_notebook = PapermillOperator(
+refresh_jupypter_notebook = PapermillOperator(
     task_id='run_jupyter_notebook',
     input_nb='/usr/local/airflow/notebooks/rates_analysis.ipynb',
     output_nb='/usr/local/airflow/notebooks/rates_analysis.ipynb',
@@ -62,6 +88,6 @@ end_operator = DummyOperator(
     dag=dag
 )
 
-start_operator >> get_daily_rates
-get_daily_rates >> run_jupypter_notebook
-run_jupypter_notebook >> end_operator
+start_operator >> create_staging >> populate_staging
+populate_staging >> load_exchange_rates >> drop_staging
+drop_staging >> refresh_jupypter_notebook >> end_operator
