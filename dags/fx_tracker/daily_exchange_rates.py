@@ -9,9 +9,10 @@ from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.papermill_operator import PapermillOperator
 from airflow.operators.postgres_operator import PostgresOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.s3_to_redshift_operator import S3ToRedshiftTransfer
 from airflow.utils import dates
 
-from alphavantage_plugin.operators.alphavantage_to_pg_operator import AlphavantageToPgOperator
+from alphavantage_plugin.operators.alphavantage_to_s3_operator import AlphavantageToS3Operator
 
 
 default_args = {
@@ -25,11 +26,14 @@ default_args = {
 }
 
 alphavantage_conn_id='alphavantage'
+s3_conn_id='my_s3_conn_id'
+s3_bucket='nrw-sandbox-airflow-fx'
+s3_key='daily-exchange-rates-{}'.format(datetime.today().strftime('%Y-%m-%d'))
 
 dag = DAG(
     dag_id='daily_exchange_rates',
     default_args=default_args,
-    description='Extract, load, and transform exchange rate data from Alphavantage to Jupyter via Postgres',
+    description='Extract, load, and transform exchange rate data from Alpha Vantage API to Jupyter via S3 and Postgres',
     schedule_interval='0 12 * * *'
 )
 
@@ -38,48 +42,56 @@ start_operator = DummyOperator(
     dag=dag
 )
 
+# use custom plugin to fetch data from Alpha Vantage API and load to S3
+alphavantage_to_s3 = AlphavantageToS3Operator(
+    task_id='alphavantage_to_s3',
+    alphavantage_function='FX_DAILY',
+    alphavantage_conn_id=alphavantage_conn_id,
+    s3_conn_id=s3_conn_id,
+    s3_bucket=s3_bucket,
+    s3_key=s3_key,
+    dag=dag
+)
+
 # create empty staging table to load data into
-create_staging = PostgresOperator(
+create_postgres_staging = PostgresOperator(
     task_id='create_staging',
     sql='sql/staging/daily_exchange_rates.table.sql',
     dag=dag
 )
 
 # populate staging table with new data
-populate_staging = AlphavantageToPgOperator(
-    task_id='load_rates_to_staging',
-    function='FX_DAILY',
-    alphavantage_conn_id=alphavantage_conn_id,
-    postgres_table='alphavantage.daily_exchange_rates_staging',
+s3_to_postgres_staging = S3ToRedshiftTransfer(
+    task_id='s3_to_postgres_staging',
+    schema='alphavantage',
+    table='daily_exchange_rates_staging',
+    s3_bucket=s3_bucket,
+    s3_key=s3_key,
+    redshift_conn_id='postgres_default',
+    aws_conn_id='s3_conn_id',
     dag=dag
 )
 
 # load only incremental data from staging into main table
-load_exchange_rates = PostgresOperator(
-    task_id='load_exchange_rates',
+load_to_postgres = PostgresOperator(
+    task_id='load_to_postgres',
     sql='sql/daily_exchange_rates.sql',
     dag=dag
 )
 
 # drop staging table
-drop_staging = PostgresOperator(
-    task_id='drop_staging',
+drop_postgres_staging = PostgresOperator(
+    task_id='drop_postgres_staging',
     sql='sql/staging/daily_exchange_rates.drop.sql',
     dag=dag
 )
 
-# TODO transform data to reporting tables
-# transform_rates = PostgresOperator(
-#     task_id='transform_rates',
-#     dag=dag
-# )
-
 refresh_jupypter_notebook = PapermillOperator(
-    task_id='run_jupyter_notebook',
+    task_id='refresh_jupyter_notebook',
     input_nb='/usr/local/airflow/notebooks/rates_analysis.ipynb',
     output_nb='/usr/local/airflow/notebooks/rates_analysis.ipynb',
     parameters='',
-    start_date=dates.days_ago(1),
+    dag=dag
     # TODO - test different start_date settings
 )
 
@@ -88,6 +100,16 @@ end_operator = DummyOperator(
     dag=dag
 )
 
-start_operator >> create_staging >> populate_staging
-populate_staging >> load_exchange_rates >> drop_staging
-drop_staging >> refresh_jupypter_notebook >> end_operator
+start_operator >> alphavantage_to_s3
+start_operator >> create_postgres_staging
+
+alphavantage_to_s3 >> s3_to_postgres_staging
+create_postgres_staging >> s3_to_postgres_staging
+
+s3_to_postgres_staging >> load_to_postgres
+
+load_to_postgres >> drop_postgres_staging
+load_to_postgres >> refresh_jupypter_notebook
+
+drop_postgres_staging >> end_operator
+refresh_jupypter_notebook >> end_operator
