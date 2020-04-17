@@ -55,7 +55,7 @@ alphavantage_to_s3 = AlphavantageToS3Operator(
 
 # create empty staging table to load data into
 create_postgres_staging = PostgresOperator(
-    task_id='create_staging',
+    task_id='create_postgres_staging',
     sql='sql/staging/daily_exchange_rates.table.sql',
     dag=dag
 )
