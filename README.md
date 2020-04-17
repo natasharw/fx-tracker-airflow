@@ -3,7 +3,7 @@
 A pipeline for exchange rate data built with Airflow, S3, Postgres, Jupyter and Docker
 
 ## Overview
-<b>Project is WIP</b>
+<b>Project is for learning only and is WIP</b>
 
 This is a sandbox project to set up an environment with Airflow and Docker in order to schedule and monitor pipelines.
 
@@ -49,9 +49,14 @@ echo $(echo "FERNET_KEY='")$(openssl rand -base64 32)$(echo "'") >> airflow.env
 echo "ALPHAVANTAGE_API_KEY='YOUR_KEY_HERE'" >> airflow.env
 ```
 
-#### Add AWS S3 bucket access details to env file
+#### Add AWS secret access details to env file
 ```
 echo "AIRFLOW__CORE__MY_S3_CONN_ID='my-conn-s3://:@:/?aws_access_key_id="_your_aws_access_key_id_"&"aws_secret_access_key"="_your_aws_secret_access_key_"'" >> airflow.env
+```
+
+#### Add S3 bucket name to env file
+```
+echo $(echo "S3_BUCKET='your_bucket_name'") >> airflow.env
 ```
 
 #### Launch docker containers in detached session

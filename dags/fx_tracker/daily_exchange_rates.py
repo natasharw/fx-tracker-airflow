@@ -27,7 +27,7 @@ default_args = {
 
 alphavantage_conn_id='alphavantage'
 s3_conn_id='my_s3_conn_id'
-s3_bucket='nrw-sandbox-airflow-fx'
+s3_bucket=os.environ.get('S3_BUCKET')
 s3_key='daily-exchange-rates-{}'.format(datetime.today().strftime('%Y-%m-%d'))
 
 dag = DAG(
