@@ -31,48 +31,48 @@ To run this locally, you would need a few things:
 
 #### Clone respository
 ```
-git clone https://github.com/natasharw/fx-tracker-airflow.git
+$ git clone https://github.com/natasharw/fx-tracker-airflow.git
 ```
 
 #### Move into new directory
 ```
-cd fx-tracker-airflow
+$ cd fx-tracker-airflow
 ```
 
 #### Generate a fernet key for your environment and pipe into env file
 ```
-echo $(echo "FERNET_KEY='")$(openssl rand -base64 32)$(echo "'") >> airflow.env
+$ echo $(echo "FERNET_KEY='")$(openssl rand -base64 32)$(echo "'") >> airflow.env
 ```
 
 #### Add Alpha Vantage API key to env file
 ```
-echo "ALPHAVANTAGE_API_KEY='YOUR_KEY_HERE'" >> airflow.env
+$ echo "ALPHAVANTAGE_API_KEY='YOUR_KEY_HERE'" >> airflow.env
 ```
 
 #### Add AWS secret access details to env file
 ```
-echo "AIRFLOW__CORE__MY_S3_CONN_ID='my-conn-s3://:@:/?aws_access_key_id="_your_aws_access_key_id_"&"aws_secret_access_key"="_your_aws_secret_access_key_"'" >> airflow.env
+$ echo "AIRFLOW__CORE__MY_S3_CONN_ID='my-conn-s3://:@:/?aws_access_key_id="_your_aws_access_key_id_"&"aws_secret_access_key"="_your_aws_secret_access_key_"'" >> airflow.env
 ```
 
 #### Add S3 bucket name to env file
 ```
-echo $(echo "S3_BUCKET='your_bucket_name'") >> airflow.env
+$ echo "S3_BUCKET='your_bucket_name'" >> airflow.env
 ```
 
 #### Launch docker containers in detached session
 ```
-docker-compose up --build -d
+$ docker-compose up --build -d
 ```
 
 #### Initialise database for webserver
 ```
-docker-compose exec webserver airflow initdb
+$ docker-compose exec webserver airflow initdb
 ```
 
 ## Trigger pipeline
 #### Trigger from command line
 ```
-docker-compose exec webserver airflow trigger_dag daily_exchange_rates
+$ docker-compose exec webserver airflow trigger_dag daily_exchange_rates
 ```
 #### Or trigger from web UI
 * Open browser to `http://127.0.0.1:8080/`
@@ -80,5 +80,5 @@ docker-compose exec webserver airflow trigger_dag daily_exchange_rates
 ## End
 #### Close docker session
 ```
-docker-compose down
+$ docker-compose down
 ```
