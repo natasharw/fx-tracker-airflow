@@ -1,1 +1,5 @@
+jupyter
+psycopg2-binary
+awscli
+boto3
 papermill>=2.0<3.0
