@@ -49,11 +49,6 @@ $ echo $(echo "FERNET_KEY='")$(openssl rand -base64 32)$(echo "'") >> airflow.en
 $ echo "ALPHAVANTAGE_API_KEY='YOUR_KEY_HERE'" >> airflow.env
 ```
 
-#### Add AWS secret access details to env file
-```
-$ echo "AIRFLOW__CORE__MY_S3_CONN_ID='my-conn-s3://:@:/?aws_access_key_id="_your_aws_access_key_id_"&"aws_secret_access_key"="_your_aws_secret_access_key_"'" >> airflow.env
-```
-
 #### Add S3 bucket name to env file
 ```
 $ echo "S3_BUCKET='your_bucket_name'" >> airflow.env
@@ -67,6 +62,11 @@ $ docker-compose up --build -d
 #### Initialise database for webserver
 ```
 $ docker-compose exec webserver airflow initdb
+```
+
+#### Set up AWS connection through CLI
+```
+$ docker-compose exec webserver airflow connections --add my_conn_s3 's3://:@:/?aws_access_key_id="_your_aws_access_key_id_"&"aws_secret_access_key"="_your_aws_secret_access_key_"'
 ```
 
 ## Trigger pipeline
