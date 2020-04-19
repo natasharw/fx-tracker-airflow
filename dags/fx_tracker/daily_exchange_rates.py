@@ -38,37 +38,54 @@ dag = DAG(
 )
 
 start_operator = DummyOperator(
-    task_id='begin_dag',
+    task_id='start_dag',
     dag=dag
 )
 
-# use custom plugin to fetch data from Alpha Vantage API and load to S3
+# fetch data from Alpha Vantage API and load as json to S3
 alphavantage_to_s3 = AlphavantageToS3Operator(
     task_id='alphavantage_to_s3',
-    alphavantage_function='FX_DAILY',
+    alphavantage_dataset='FX_DAILY',
     alphavantage_conn_id=alphavantage_conn_id,
     s3_conn_id=s3_conn_id,
     s3_bucket=s3_bucket,
     s3_key=s3_key,
+    currencies = [
+        ('GBP','EUR')
+    ],
     dag=dag
 )
 
-# create empty staging table to load data into
+# create empty temp table to load json formatted data into
+create_postgres_pre_staging = PostgresOperator(
+    task_id='create_postgres_pre_staging',
+    sql='sql/staging/pre/daily_exchange_rates.table.sql',
+    dag=dag
+)
+
+# create empty staging table to load columnar formatted data into
 create_postgres_staging = PostgresOperator(
     task_id='create_postgres_staging',
     sql='sql/staging/daily_exchange_rates.table.sql',
     dag=dag
 )
 
-# populate staging table with new data
-s3_to_postgres_staging = S3ToRedshiftTransfer(
-    task_id='s3_to_postgres_staging',
-    schema='alphavantage',
-    table='daily_exchange_rates_staging',
+# populate first staging table with new data
+s3_to_postgres_pre_staging = S3ToRedshiftTransfer(
+    task_id='s3_to_postgres_pre_staging',
+    aws_conn_id='s3_conn_id',
     s3_bucket=s3_bucket,
     s3_key=s3_key,
     redshift_conn_id='postgres_default',
-    aws_conn_id='s3_conn_id',
+    schema='alphavantage',
+    table='daily_exchange_rates_pre_staging',
+    dag=dag
+)
+
+# transform json data using psql to correct table structure
+load_to_postgres_staging = PostgresOperator(
+    task_id='load_to_postgres_staging',
+    sql='sql/staging/daily_exchange_rates.sql',
     dag=dag
 )
 
@@ -79,13 +96,14 @@ load_to_postgres = PostgresOperator(
     dag=dag
 )
 
-# drop staging table
-drop_postgres_staging = PostgresOperator(
-    task_id='drop_postgres_staging',
-    sql='sql/staging/daily_exchange_rates.drop.sql',
+# drop pre staging table
+drop_postgres_pre_staging = PostgresOperator(
+    task_id='drop_postgres_pre_staging',
+    sql='sql/staging/pre/daily_exchange_rates.drop.sql',
     dag=dag
 )
 
+# refresh jupyter notebook
 refresh_jupypter_notebook = PapermillOperator(
     task_id='refresh_jupyter_notebook',
     input_nb='/usr/local/airflow/notebooks/rates_analysis.ipynb',
@@ -95,21 +113,34 @@ refresh_jupypter_notebook = PapermillOperator(
     # TODO - test different start_date settings
 )
 
+# drop staging table
+drop_postgres_staging = PostgresOperator(
+    task_id='drop_postgres_staging',
+    sql='sql/staging/daily_exchange_rates.drop.sql',
+    dag=dag
+)
+
 end_operator = DummyOperator(
     task_id='stop_dag',
     dag=dag
 )
 
-start_operator >> alphavantage_to_s3
 start_operator >> create_postgres_staging
+start_operator >> alphavantage_to_s3
+start_operator >> create_postgres_pre_staging
 
-alphavantage_to_s3 >> s3_to_postgres_staging
-create_postgres_staging >> s3_to_postgres_staging
+create_postgres_staging >> s3_to_postgres_pre_staging
+alphavantage_to_s3 >> s3_to_postgres_pre_staging
+create_postgres_pre_staging >> s3_to_postgres_pre_staging
 
-s3_to_postgres_staging >> load_to_postgres
+s3_to_postgres_pre_staging >> load_to_postgres_staging
+
+load_to_postgres_staging >> load_to_postgres
 
 load_to_postgres >> drop_postgres_staging
 load_to_postgres >> refresh_jupypter_notebook
+load_to_postgres >> drop_postgres_pre_staging
 
-drop_postgres_staging >> end_operator
+drop_postgres_pre_staging >> end_operator
 refresh_jupypter_notebook >> end_operator
+drop_postgres_staging >> end_operator

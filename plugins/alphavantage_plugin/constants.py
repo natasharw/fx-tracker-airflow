@@ -1,0 +1,3 @@
+SUPPORTED = [
+        'FX_DAILY'
+    ]
