@@ -25,6 +25,9 @@ class AlphavantageHook(HttpHook):
     
     def run(self, function: str, from_currency: str, to_currency: str):
 
+        if self.alphavantage_token is None:
+            raise ValueError("No API key provided")
+
         payload = {
             'function': function,
             'from_symbol': from_currency,
@@ -32,7 +35,5 @@ class AlphavantageHook(HttpHook):
             'apikey': self.alphavantage_token,
         }
 
-        if self.alphavantage_token:
-            return super().run(endpoint='', data=payload)
+        return super().run(endpoint='', data=payload)
 
-        # TODO: error handling for when alphavantage token not found
