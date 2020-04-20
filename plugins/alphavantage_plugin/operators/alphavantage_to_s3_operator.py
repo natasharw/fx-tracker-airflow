@@ -10,7 +10,7 @@ from alphavantage_plugin.hooks.alphavantage_hook import AlphavantageHook
 
 class AlphavantageToS3Operator(BaseOperator):
     """
-    Fetches dataset from Alphavantage API and loads json into Postgres
+    Fetches dataset from Alphavantage API and loads json into S3
 
     :param alphavantage_conn_id: airflow connection for Alphavantage API
     :type alphavantage_conn_id: str
