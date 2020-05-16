@@ -3,8 +3,6 @@
 A pipeline for exchange rate data built with Airflow, S3, Postgres, Jupyter and Docker
 
 ## Overview
-<b>Project is for learning only and is WIP</b>
-
 This is a sandbox project to set up an environment with Airflow and Docker in order to schedule and monitor pipelines.
 
 To demonstrate the environment, it is used to fetch daily exchange rate data from an external API (Alpha Vantage), load into S3, load into Postgres including two staging steps, then refresh a (currently dummy) Jupyter notebook
