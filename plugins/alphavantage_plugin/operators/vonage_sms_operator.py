@@ -14,6 +14,8 @@ class VonageSmsOperator(BaseOperator):
     :type vonage_api_conn_id: str
     :param recipients: list of phone numnbers to send alert to. formatted with the country code and without spaces or plus signs or leading zeros
     :param recipients: str
+    :param message: text body of the SMS to be sent
+    :param message: str
     """
 
     def __init__(

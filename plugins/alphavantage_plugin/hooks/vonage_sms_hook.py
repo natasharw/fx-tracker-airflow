@@ -6,12 +6,10 @@ from vonage import Sms, Client
 
 class VonageSmsHook(BaseHook):
     """
-    Handles authentication and query request to Alphavantage API
+    Creates connection and handles request to Vonage SMS client
 
     :param vonage_api_conn_id: name of airflow connection for Vonage APIs
     :type vonage_api_conn_id: str
-    :param alphavantage_api_key: access key provided by Alphavantage
-    :type alphavantage_api_key: str
     """
 
     def __init__(
