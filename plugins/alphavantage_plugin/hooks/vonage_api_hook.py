@@ -4,7 +4,7 @@ from airflow.hooks.base_hook import BaseHook
 
 from vonage import Sms, Client
 
-class VonageSmsHook(BaseHook):
+class VonageApiHook(BaseHook):
     """
     Creates connection and handles request to Vonage SMS client
 
@@ -22,12 +22,18 @@ class VonageSmsHook(BaseHook):
     def get_conn(self):
 
         client = Client(key='your_key', secret='your_secret')
+
+        return client
+
+    def send_sms(self, payload):
+
+        client = self.get_conn()
         sms = Sms(client)
 
-        return sms
-
-    def send(self, payload):
-
-        sms = self.get_conn()
-
         return sms.send_message(payload)
+
+    def make_automated_call(self, payload):
+
+        client = self.get_conn()
+
+        return client.create_call(payload)

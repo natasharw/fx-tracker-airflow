@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 
-from alphavantage_plugin.operators.vonage_sms_operator import VonageSmsOperator
+from airflow.operators.alphavantage_plugin import VonageSmsOperator
 
 
 def vonage_sms_alert(context):
@@ -22,7 +22,7 @@ def vonage_sms_alert(context):
 
     return operator.execute()
 
-dag = DAG('test_failure_dag',
+dag = DAG('test_failure_dag_sms',
           schedule_interval=None,
           start_date=datetime(2020, 10, 11), catchup=False)
 
