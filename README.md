@@ -25,7 +25,7 @@ To demonstrate the environment, it is used to fetch daily exchange rate data fro
 To run this locally, you would need a few things:
 * Docker installed
 * S3 bucket and access details
-* API key for Alpha Vantage [API](https://www.alphavantage.co/support/#api-key) (free)
+* API key for [Alpha Vantage API](https://www.alphavantage.co/support/#api-key) (free)
 
 ## Setup
 
