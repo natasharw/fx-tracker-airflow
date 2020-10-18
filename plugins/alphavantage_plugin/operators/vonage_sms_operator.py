@@ -4,11 +4,11 @@ import logging
 
 from airflow.models import BaseOperator
 
-from alphavantage_plugin.hooks.vonage_sms_hook import VonageSmsHook
+from alphavantage_plugin.hooks.vonage_api_hook import VonageApiHook
 
 class VonageSmsOperator(BaseOperator):
     """
-    Sends an SMS using Vonage SMS service
+    Sends SMS messages using Vonage API SMS service
 
     :param vonage_api_conn_id: airflow connection for Vonage APIs
     :type vonage_api_conn_id: str
@@ -24,13 +24,26 @@ class VonageSmsOperator(BaseOperator):
         recipients: List[str],
         message: str,
         *args, **kwargs):
+        super().__init__(*args,**kwargs)
 
         self.vonage_api_conn_id = vonage_api_conn_id
         self.recipients = recipients
         self.message = message
 
-        super().__init__(*args,**kwargs)
+    def execute(self):
+        hook = VonageApiHook(vonage_api_conn_id=self.vonage_api_conn_id)
+        results = []
 
+        for counter, recipient in enumerate(self.recipients,1):
+            logging.info(f'Sending SMS to {counter} of {len(self.recipients)} recipients')
+            
+            payload = self._build_payload(recipient)    
+            response = hook.send_sms(payload)
+            result = self._handle_response(response)
+
+            results.append(result)
+
+        return results
 
     def _build_payload(self, recipient):
         payload = {
@@ -43,30 +56,17 @@ class VonageSmsOperator(BaseOperator):
 
         return payload
 
+    def _handle_response(self, response):
+        logging.info(f'Response from Vonage API: {response}')
+        logging.info(f'Messages sent: {response["message-count"]}')
 
-    def execute(self):
-        hook = VonageSmsHook(vonage_api_conn_id=self.vonage_api_conn_id)
-        results = []
+        for message in response["messages"]:
+            self._check_message_status(message)
 
-        for counter, recipient in enumerate(self.recipients,1):
-            logging.info(f'Sending SMS to {counter} of {len(self.recipients)} recipients')
-            
-            payload = self._build_payload(recipient)    
-
-            response = hook.send(payload)
-            logging.info(f'Response: {response}')
-
-            msg_cnt = response["message-count"]
-            logging.info(f'SMS alert length: {msg_cnt} message(s)')
-
-            for msg in response["messages"]:
-                if msg["status"] != "0":
-                    msg = f'Vonage SMS send failed. Reason: {msg["error-text"]}'
-                    logging.error(msg)
-
-            results += response
-
-        return results
-
-
-        
+        return response.json()
+    
+    @staticmethod
+    def _check_message_status(message):    
+        if message["status"] != "0":
+            message = f'Vonage SMS send failed. Reason: {message["error-text"]}'
+            raise ValueError(message)
