@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from plugins.alphavantage_plugin.operators.vonage_sms_operator import VonageSmsOperator
+from alphavantage_plugin.operators.vonage_sms_operator import VonageSmsOperator
 
 class TestVonageSmsOperator(unittest.TestCase):
 
@@ -11,7 +11,7 @@ class TestVonageSmsOperator(unittest.TestCase):
         self.message = 'I am a test'
         self.mock_resposnse_json = {'foo': 'bar'}
 
-    @patch('plugins.alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
+    @patch('alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
     def test__build_payload(self, mock_hook):
 
         test_operator = VonageSmsOperator(
@@ -32,13 +32,15 @@ class TestVonageSmsOperator(unittest.TestCase):
 
     @patch.object(VonageSmsOperator, '_handle_response')
     @patch.object(VonageSmsOperator, '_build_payload')
-    @patch('plugins.alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
+    @patch('alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
     def test_execute(self, mock_hook, mock_build_payload, mock_handle_response):
         test_operator = VonageSmsOperator(
             task_id='this_is_a_test',
             vonage_api_conn_id=self.vonage_api_conn_id,
             recipients=self.recipients,
             message=self.message)
+
+        # mock_hook.send_sms.return_value = 'blah'
 
         expected_call_count = len(self.recipients)
         mock_handle_response.return_value = self.mock_resposnse_json
@@ -53,6 +55,7 @@ class TestVonageSmsOperator(unittest.TestCase):
             {'foo': 'bar'},
             {'foo': 'bar'},
             {'foo': 'bar'}])
+
 
     # @patch('plugins.alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
     # def test__handle_response(self, mock_hook):
