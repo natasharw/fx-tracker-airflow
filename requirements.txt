@@ -4,3 +4,4 @@ awscli
 boto3
 papermill>=2.0<3.0
 vonage
+pytest-cov

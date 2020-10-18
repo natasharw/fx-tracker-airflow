@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/natasharw/fx-tracker-airflow/branch/master/graph/badge.svg?token=UW5UEL0981)](undefined)
+
 # FX Tracker
 
 A pipeline for exchange rate data built with Airflow, S3, Postgres, Jupyter and Docker
