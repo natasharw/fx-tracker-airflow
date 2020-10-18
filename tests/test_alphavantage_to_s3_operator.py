@@ -2,26 +2,29 @@ from datetime import datetime
 from unittest import TestCase
 
 from airflow.models import DAG, TaskInstance
+from alphavantage_plugin.operators.alphavantage_to_s3_operator import AlphavantageToS3Operator 
 
-from alphavantage_plugin.operators.alphavantage_to_s3_operator import AlphavantageToS3Operator
-
-class TestAlphaVantageToS3Operator(TestCase):
+class TestAlphavantageToS3Operator(TestCase):
     def setUp(self):
         self.alphavantage_conn_id='alphavantage'
         self.s3_conn_id='my_s3_conn_id'
 
     def test_check_supported_1(self):
         self.alphavantage_dataset = 'FX_DAILY'
-        func = AlphavantageToS3Operator.check_supported(self)
-        self.assertEqual(func,0)
+        try:
+             AlphavantageToS3Operator.check_supported(self)
+        except ValueError:
+            self.fail("check_supported() raised ExceptionType unexpectedly!")
 
     def test_check_supported_2(self):
         self.alphavantage_dataset = 'FOO'
-        self.assertRaises(ValueError("FOO not in supported datasets"), AlphavantageToS3Operator.check_supported(self))
+        with self.assertRaises(ValueError):
+            AlphavantageToS3Operator.check_supported(self)
 
     def parse_response_2(self):
         self.alphavantage_dataset = 'FOO'
-        self.assertRaises(ValueError, AlphavantageToS3Operator.parse_response(self, '{1,2,3}'))
+        with self.assertRaises(ValueError):
+            AlphavantageToS3Operator.parse_response(self, '{1,2,3}')
 
 
     # def test_execute(self):

@@ -12,7 +12,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.s3_to_redshift_operator import S3ToRedshiftTransfer
 from airflow.utils import dates
 
-from alphavantage_plugin.operators.alphavantage_to_s3_operator import AlphavantageToS3Operator
+from airflow.operators.alphavantage_plugin import AlphavantageToS3Operator
 
 
 default_args = {

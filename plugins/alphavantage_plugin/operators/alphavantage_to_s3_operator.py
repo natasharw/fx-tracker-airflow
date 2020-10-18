@@ -120,6 +120,4 @@ class AlphavantageToS3Operator(BaseOperator):
             key=self.s3_key+'_json',
             bucket_name=self.s3_bucket
         )
-
-        s3.connection.close()
       
