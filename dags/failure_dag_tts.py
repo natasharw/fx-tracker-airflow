@@ -22,7 +22,7 @@ def vonage_automated_call_alert(context):
     return operator.execute()
 
 
-dag = DAG('test_failure_dag_tts',
+dag = DAG('failure_dag_tts',
           schedule_interval=None,
           start_date=datetime(2020, 10, 11), catchup=False)
 

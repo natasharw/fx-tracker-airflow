@@ -22,7 +22,7 @@ def vonage_sms_alert(context):
 
     return operator.execute()
 
-dag = DAG('test_failure_dag_sms',
+dag = DAG('failure_dag_sms',
           schedule_interval=None,
           start_date=datetime(2020, 10, 11), catchup=False)
 
