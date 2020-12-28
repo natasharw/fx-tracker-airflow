@@ -19,6 +19,11 @@ To demonstrate the environment, it is used to fetch daily exchange rate data fro
 * Custom plugin for Alpha Vantage
   * Custom hook to Alpha Vantage API
   * Custom operator to load data from Alpha Vantage to S3
+* Custom plugin for Vonage APIs
+  * Custom hook to Vonage API
+  * Custom operator to produce SMS alert
+  * Custom operator to produe text-to-speech alert
+* Test DAGs for failure alerts using Vonage plugin
 * `PapermillOperator` used to refresh Jupyter notebook
 
 ## Prerequisites
@@ -44,12 +49,12 @@ $ cd fx-tracker-airflow
 $ echo $(echo "FERNET_KEY='")$(openssl rand -base64 32)$(echo "'") >> airflow.env
 ```
 
-#### Add Alpha Vantage API key to env file
+#### Add Alpha Vantage API key to environment file
 ```
 $ echo "ALPHAVANTAGE_API_KEY='YOUR_KEY_HERE'" >> airflow.env
 ```
 
-#### Add S3 bucket name to env file
+#### Add S3 bucket name to environment file
 ```
 $ echo "S3_BUCKET='your_bucket_name'" >> airflow.env
 ```
@@ -59,12 +64,12 @@ $ echo "S3_BUCKET='your_bucket_name'" >> airflow.env
 $ docker-compose up --build -d
 ```
 
-#### Initialise database for webserver
+#### Initialise database for Airflow webserver
 ```
 $ docker-compose exec webserver airflow initdb
 ```
 
-#### Set up AWS connection through CLI
+#### Create Airflow connection for AWS using Airflow CLI
 ```
 $ docker-compose exec webserver airflow connections --add my_conn_s3 's3://:@:/?aws_access_key_id="_your_aws_access_key_id_"&"aws_secret_access_key"="_your_aws_secret_access_key_"'
 ```

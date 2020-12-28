@@ -5,7 +5,7 @@ import logging
 
 from airflow.models import BaseOperator
 
-from alphavantage_plugin.hooks.vonage_api_hook import VonageApiHook
+from vonage_plugin.hooks.vonage_api_hook import VonageApiHook
 
 class VonageTtsOperator(BaseOperator):
     """

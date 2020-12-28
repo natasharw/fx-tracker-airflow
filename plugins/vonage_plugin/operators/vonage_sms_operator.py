@@ -4,7 +4,7 @@ import logging
 
 from airflow.models import BaseOperator
 
-from alphavantage_plugin.hooks.vonage_api_hook import VonageApiHook
+from vonage_plugin.hooks.vonage_api_hook import VonageApiHook
 
 class VonageSmsOperator(BaseOperator):
     """
@@ -63,7 +63,7 @@ class VonageSmsOperator(BaseOperator):
         for message in response["messages"]:
             self._check_message_status(message)
 
-        return response.json()
+        return response
     
     @staticmethod
     def _check_message_status(message):    
