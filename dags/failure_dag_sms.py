@@ -12,7 +12,7 @@ def vonage_sms_alert(context):
     operator = VonageSmsOperator(
         task_id=str(context['task_instance_key_str']),
         vonage_api_conn_id='vonage_api_conn_id',
-        recipients=['447384700374'],
+        recipients=['####'],
         message=f"""! Airflow alert !
         A task has failed
         DAG: {context['task_instance'].dag_id}
