@@ -1,7 +1,6 @@
 from datetime import datetime
 from unittest import TestCase
 
-from airflow.models import DAG, TaskInstance
 from alphavantage_plugin.operators.alphavantage_to_s3_operator import AlphavantageToS3Operator 
 
 class TestAlphavantageToS3Operator(TestCase):
@@ -25,19 +24,3 @@ class TestAlphavantageToS3Operator(TestCase):
         self.alphavantage_dataset = 'FOO'
         with self.assertRaises(ValueError):
             AlphavantageToS3Operator.parse_response(self, '{1,2,3}')
-
-
-    # def test_execute(self):
-    #     dag = DAG(dag_id='daily_exchange_rates',start_date=datetime.now())
-    #     task = AlphavantageToS3Operator(
-    #         dag=dag,
-    #         task_id='s3_to_postgres_pre_staging'
-    #         aws_conn_id='s3_conn_id',
-    #         s3_bucket=s3_bucket,
-    #         s3_key=s3_key,
-    #         redshift_conn_id='postgres_default',
-    #         schema='alphavantage',
-    #         table='daily_exchange_rates_pre_staging',
-    #         dag=dag)
-    #     ti = TaskInstance(task=task, execution_date=datetime.now())
-    #     task.execute(ti.get_template_context())
