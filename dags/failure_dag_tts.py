@@ -4,7 +4,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 
-from airflow.operators.alphavantage_plugin import VonageTtsOperator
+from airflow.operators.vonage_plugin import VonageTtsOperator
 
 
 def vonage_automated_call_alert(context):

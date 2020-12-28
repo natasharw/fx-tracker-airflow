@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 
-from alphavantage_plugin.operators.vonage_sms_operator import VonageSmsOperator
+from vonage_plugin.operators.vonage_sms_operator import VonageSmsOperator
 
 class TestVonageSmsOperator(unittest.TestCase):
 
