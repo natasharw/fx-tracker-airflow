@@ -13,9 +13,3 @@ class TestDagBag(TestCase):
                 self.dagbag.import_errors
             )
         )
-    
-    def test_queue_present(self):
-        for dag_id, dag in self.dagbag.dags.iteritems():
-            queue = dag.default_args.get('queue', None)
-            msg = 'Queue not for DAG {id}'.format(id=dag_id)
-            self.assertNotEqual(None, queue, msg)

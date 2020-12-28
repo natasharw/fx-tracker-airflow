@@ -11,7 +11,7 @@ class TestVonageSmsOperator(unittest.TestCase):
         self.message = 'I am a test'
         self.mock_resposnse_json = {'foo': 'bar'}
 
-    @patch('alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
+    @patch('vonage_plugin.operators.vonage_sms_operator.VonageApiHook')
     def test__build_payload(self, mock_hook):
 
         test_operator = VonageSmsOperator(
@@ -32,7 +32,7 @@ class TestVonageSmsOperator(unittest.TestCase):
 
     @patch.object(VonageSmsOperator, '_handle_response')
     @patch.object(VonageSmsOperator, '_build_payload')
-    @patch('alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
+    @patch('vonage_plugin.operators.vonage_sms_operator.VonageApiHook')
     def test_execute(self, mock_hook, mock_build_payload, mock_handle_response):
         test_operator = VonageSmsOperator(
             task_id='this_is_a_test',
@@ -57,7 +57,7 @@ class TestVonageSmsOperator(unittest.TestCase):
             {'foo': 'bar'}])
 
 
-    # @patch('plugins.alphavantage_plugin.operators.vonage_sms_operator.VonageApiHook')
+    # @patch('plugins.vonage_plugin.operators.vonage_sms_operator.VonageApiHook')
     # def test__handle_response(self, mock_hook):
     #     test_operator = VonageSmsOperator(
     #         task_id='this_is_a_test',
